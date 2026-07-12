@@ -131,34 +131,29 @@ def main(args):
 
         for img in data['images']:
             filename = img['file_name']
+            base_name = os.path.basename(filename)
             width = img['width']
             height = img['height']
             img_id = img['id']
 
-            # Find source path of the image
-            if filename not in image_path_map:
-                # Some filenames might have different casing or path structure
-                # Let's try matching base name if direct match fails
-                base_name = os.path.basename(filename)
-                src_path = image_path_map.get(base_name)
-            else:
-                src_path = image_path_map[filename]
+            # Find source path of the image by base name
+            src_path = image_path_map.get(base_name)
 
             if not src_path:
                 continue
 
-            # Create symlink to image
-            dest_img_path = os.path.join(img_dest_dir, filename)
+            # Create symlink to image (flat structure)
+            dest_img_path = os.path.join(img_dest_dir, base_name)
             if not os.path.exists(dest_img_path):
                 os.symlink(src_path, dest_img_path)
                 symlink_count += 1
 
             # Generate VOC XML Annotation
-            xml_filename = os.path.splitext(filename)[0] + '.xml'
+            xml_filename = os.path.splitext(base_name)[0] + '.xml'
             dest_xml_path = os.path.join(ann_dest_dir, xml_filename)
 
             root_el = ET.Element("annotation")
-            ET.SubElement(root_el, "filename").text = filename
+            ET.SubElement(root_el, "filename").text = base_name
             size_el = ET.SubElement(root_el, "size")
             ET.SubElement(size_el, "width").text = str(width)
             ET.SubElement(size_el, "height").text = str(height)
@@ -189,7 +184,7 @@ def main(args):
             tree.write(dest_xml_path, encoding='utf-8', xml_declaration=False)
             xml_count += 1
 
-            split_images_list.append(filename)
+            split_images_list.append(base_name)
 
         # Write txt list of file names
         txt_filename = f'{split}.txt'
