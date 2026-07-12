@@ -48,6 +48,7 @@ def main(args):
     splits = ['train', 'val', 'test']
     all_categories = set()
     category_id_to_name = {}
+    category_index_to_name = {}
 
     # Read train JSON to extract and build task classes (since it contains all categories)
     train_json_path = os.path.join(args.ann_dir, 'train.json')
@@ -57,8 +58,11 @@ def main(args):
 
     with open(train_json_path, 'r') as f:
         train_data = json.load(f)
-        for cat in train_data['categories']:
+        # Sort by ID to ensure mapping consistency
+        sorted_cats = sorted(train_data['categories'], key=lambda x: x['id'])
+        for i, cat in enumerate(sorted_cats):
             category_id_to_name[cat['id']] = cat['name']
+            category_index_to_name[i] = cat['name']
             all_categories.add(cat['name'])
 
     # Sort categories alphabetically to ensure consistent class lists
@@ -117,8 +121,10 @@ def main(args):
             data = json.load(f)
 
         # Update category mapping in case of missing categories in train.json
-        for cat in data['categories']:
+        sorted_cats = sorted(data['categories'], key=lambda x: x['id'])
+        for i, cat in enumerate(sorted_cats):
             category_id_to_name[cat['id']] = cat['name']
+            category_index_to_name[i] = cat['name']
 
         # Group annotations by image_id
         img_anns = defaultdict(list)
@@ -161,7 +167,17 @@ def main(args):
 
             for ann in img_anns[img_id]:
                 obj_el = ET.SubElement(root_el, "object")
-                ET.SubElement(obj_el, "name").text = category_id_to_name[ann['category_id']]
+                
+                cat_id = ann['category_id']
+                if cat_id in category_id_to_name:
+                    cat_name = category_id_to_name[cat_id]
+                elif cat_id in category_index_to_name:
+                    cat_name = category_index_to_name[cat_id]
+                else:
+                    # Fallback to category list index if present, or generic label
+                    cat_name = sorted_classes[min(cat_id, len(sorted_classes)-1)]
+                
+                ET.SubElement(obj_el, "name").text = cat_name
                 ET.SubElement(obj_el, "difficult").text = "0"
                 bb_el = ET.SubElement(obj_el, "bndbox")
                 # COCO box format: [x, y, w, h] (0-indexed)
