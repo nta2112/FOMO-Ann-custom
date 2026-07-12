@@ -9,6 +9,7 @@
 # https://github.com/huggingface/transformers/blob/main/src/transformers/models/owlvit/modeling_owlvit.py
 # ------------------------------------------------------------------------
 
+from typing import Union, Tuple, Optional
 from transformers import OwlViTProcessor, OwlViTForObjectDetection, OwlViTConfig, OwlViTModel
 from transformers.models.owlvit.modeling_owlvit import *
 from transformers.models.owlvit.modeling_owlvit import OwlViTTextTransformer
