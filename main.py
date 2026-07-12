@@ -40,7 +40,7 @@ def get_args_parser():
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--viz', action='store_true')
-    parser.add_argument('--num_workers', default=2, type=int)
+    parser.add_argument('--num_workers', default=0, type=int)
 
     ################ dataset configs ################
     parser.add_argument('--test_set', default='test.txt', help='testing txt files')

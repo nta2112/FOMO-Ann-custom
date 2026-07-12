@@ -14,7 +14,7 @@ def get_args_parser():
                         help='Model name (e.g., google/owlvit-base-patch16 or google/owlvit-large-patch14)')
     parser.add_argument('--batch_size', default=32, type=int,
                         help='Batch size per GPU')
-    parser.add_argument('--num_workers', default=2, type=int,
+    parser.add_argument('--num_workers', default=0, type=int,
                         help='Dataloader num_workers')
     parser.add_argument('--gpus', default=2, type=int,
                         help='Number of GPUs to use (Kaggle has 2x T4)')
