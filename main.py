@@ -10,6 +10,14 @@ import argparse
 import random
 from pathlib import Path
 import numpy as np
+# Restore np.sctypes for compatibility with older libraries like imgaug on NumPy 2.0+
+if not hasattr(np, 'sctypes'):
+    np.sctypes = {
+        'int': [np.int8, np.int16, np.int32, np.int64],
+        'uint': [np.uint8, np.uint16, np.uint32, np.uint64],
+        'float': [np.float16, np.float32, np.float64],
+        'others': [bool, complex, object, str, bytes]
+    }
 import torch
 from torch.utils.data import DataLoader
 import util.misc as utils
