@@ -79,8 +79,8 @@ class UnkDetHead(nn.Module):
 
 
 class OwlViTTextTransformer(OwlViTTextTransformer):
-    @add_start_docstrings_to_model_forward(OWLVIT_TEXT_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=BaseModelOutputWithPooling, config_class=OwlViTTextConfig)
+    # @add_start_docstrings_to_model_forward(OWLVIT_TEXT_INPUTS_DOCSTRING)
+    # @replace_return_docstrings(output_type=BaseModelOutputWithPooling, config_class=OwlViTTextConfig)
     def forward(
             self,
             input_ids: torch.Tensor,
@@ -151,10 +151,10 @@ class OwlViTTextTransformer(OwlViTTextTransformer):
         return mask
 
 
-@add_start_docstrings(OWLVIT_START_DOCSTRING)
+# @add_start_docstrings(OWLVIT_START_DOCSTRING)
 class OurOwlViTModel(OwlViTModel):
-    @add_start_docstrings_to_model_forward(OWLVIT_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=OwlViTOutput, config_class=OwlViTConfig)
+    # @add_start_docstrings_to_model_forward(OWLVIT_INPUTS_DOCSTRING)
+    # @replace_return_docstrings(output_type=OwlViTOutput, config_class=OwlViTConfig)
     def forward_vision(
             self,
             pixel_values: Optional[torch.FloatTensor] = None,
