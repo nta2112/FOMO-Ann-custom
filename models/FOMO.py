@@ -11,6 +11,7 @@
 
 from transformers import OwlViTProcessor, OwlViTForObjectDetection, OwlViTConfig, OwlViTModel
 from transformers.models.owlvit.modeling_owlvit import *
+from transformers.models.owlvit.modeling_owlvit import OwlViTTextTransformer
 
 from .utils import *
 from .few_shot_dataset import FewShotDataset, aug_pipeline, collate_fn
