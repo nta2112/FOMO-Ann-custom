@@ -174,16 +174,16 @@ class OWEvaluator(object):
 
         if self.prev_intro_cls > 0:
             print("Prev class AP50: " + str(self.AP[:, o50][:self.prev_intro_cls].mean()))
-            print("Prev class Precisions50: " + str(np.mean(self.precs[50][:self.prev_intro_cls])))
-            print("Prev class Recall50: " + str(np.mean(self.recs[50][:self.prev_intro_cls])))
+            print("Prev class Precisions50: " + str(np.nanmean(self.precs[50][:self.prev_intro_cls])))
+            print("Prev class Recall50: " + str(np.nanmean(self.recs[50][:self.prev_intro_cls])))
 
         print("Current class AP50: " + str(self.AP[:, o50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls].mean()))
-        print("Current class Precisions50: " + str(np.mean(self.precs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls])))
-        print("Current class Recall50: " + str(np.mean(self.recs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls])))
+        print("Current class Precisions50: " + str(np.nanmean(self.precs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls])))
+        print("Current class Recall50: " + str(np.nanmean(self.recs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls])))
 
         print("Known AP50: " + str(self.AP[:, o50][:self.prev_intro_cls + self.curr_intro_cls].mean()))
-        print("Known Precisions50: " + str(np.mean(self.precs[50][:self.prev_intro_cls + self.curr_intro_cls])))
-        print("Known Recall50: " + str(np.mean(self.recs[50][:self.prev_intro_cls + self.curr_intro_cls])))
+        print("Known Precisions50: " + str(np.nanmean(self.precs[50][:self.prev_intro_cls + self.curr_intro_cls])))
+        print("Known Recall50: " + str(np.nanmean(self.recs[50][:self.prev_intro_cls + self.curr_intro_cls])))
 
         print("Unknown AP50: " + str(self.AP[:, o50][-1]))
         print("Unknown Precisions50: " + str(self.precs[50][-1]))
@@ -200,12 +200,12 @@ class OWEvaluator(object):
             "AOSA": total_num_unk_det_as_known[50],
             
             "CK_AP50": float(self.AP[:, o50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls].mean().detach().cpu()),
-            "CK_P50": np.mean(self.precs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls]),
-            "CK_R50": np.mean(self.recs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls]),
+            "CK_P50": np.nanmean(self.precs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls]),
+            "CK_R50": np.nanmean(self.recs[50][self.prev_intro_cls:self.prev_intro_cls + self.curr_intro_cls]),
             
             "K_AP50": float(self.AP[:, o50][:self.prev_intro_cls + self.curr_intro_cls].mean().detach().cpu()),
-            "K_P50": np.mean(self.precs[50][:self.prev_intro_cls + self.curr_intro_cls]),
-            "K_R50": np.mean(self.recs[50][:self.prev_intro_cls + self.curr_intro_cls]),
+            "K_P50": np.nanmean(self.precs[50][:self.prev_intro_cls + self.curr_intro_cls]),
+            "K_R50": np.nanmean(self.recs[50][:self.prev_intro_cls + self.curr_intro_cls]),
             
             "U_AP50": float(self.AP[:, o50][-1].detach().cpu()),
             "U_P50": self.precs[50][-1],
@@ -213,8 +213,8 @@ class OWEvaluator(object):
         }
         if self.prev_intro_cls > 0:
             Res["PK_AP50"] = float(self.AP[:, o50][:self.prev_intro_cls].mean().detach().cpu())
-            Res["PK_P50"] = np.mean(self.precs[50][:self.prev_intro_cls])
-            Res["PK_R50"] =np.mean(self.recs[50][:self.prev_intro_cls])
+            Res["PK_P50"] = np.nanmean(self.precs[50][:self.prev_intro_cls])
+            Res["PK_R50"] = np.nanmean(self.recs[50][:self.prev_intro_cls])
         
         return Res
 
@@ -370,7 +370,7 @@ def voc_eval(detpath,
     npos = 0
     for imagename in imagenames:
         R = [obj for obj in recs[imagename.split('-^-')[-1]] if obj['name'] == classname]
-        bbox = np.array([x['bbox'] for x in R])
+        bbox = np.array([x['bbox'] for x in R]).astype(float)
         difficult = np.array([x['difficult'] for x in R]).astype(bool)
         det = [False] * len(R)
         npos = npos + sum(~difficult)
@@ -406,9 +406,9 @@ def voc_eval(detpath,
     for d in range(nd):
         ##todo: class_recs is a dict with image_ides,
         R = class_recs[image_ids[d]]
-        bb = BB[d, :].astype(float)
+        bb = BB[d, :]
         ovmax = -np.inf
-        BBGT = R['bbox'].astype(float)
+        BBGT = R['bbox']
 
         if BBGT.size > 0:
             ovmax, jmax = iou(BBGT, bb)
@@ -427,11 +427,16 @@ def voc_eval(detpath,
     # compute precision recall
     fp = np.cumsum(fp)
     tp = np.cumsum(tp)
-    rec = tp / float(npos)
-    # avoid divide by zero in case the first detection matches a difficult
-    # ground truth
-    prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
-    ap = voc_ap(rec, prec, use_07_metric)
+    if npos == 0:
+        rec = np.array([np.nan])
+        prec = np.array([np.nan])
+        ap = 0.0
+    else:
+        rec = tp / float(npos)
+        # avoid divide by zero in case the first detection matches a difficult
+        # ground truth
+        prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
+        ap = voc_ap(rec, prec, use_07_metric)
 
     '''
     Computing Absolute Open-Set Error (A-OSE) and Wilderness Impact (WI)
@@ -446,7 +451,7 @@ def voc_eval(detpath,
     n_unk = 0
     for imagename in imagenames:
         R = [obj for obj in recs[imagename.split('-^-')[-1]] if obj["name"] == 'unknown']
-        bbox = np.array([x["bbox"] for x in R])
+        bbox = np.array([x["bbox"] for x in R]).astype(float)
         difficult = np.array([x["difficult"] for x in R]).astype(bool)
         det = [False] * len(R)
         n_unk = n_unk + sum(~difficult)
@@ -460,9 +465,9 @@ def voc_eval(detpath,
     is_unk = np.zeros(nd)
     for d in range(nd):
         R = unknown_class_recs[image_ids[d]]
-        bb = BB[d, :].astype(float)
+        bb = BB[d, :]
         ovmax = -np.inf
-        BBGT = R["bbox"].astype(float)
+        BBGT = R["bbox"]
 
         if BBGT.size > 0:
             # compute overlaps

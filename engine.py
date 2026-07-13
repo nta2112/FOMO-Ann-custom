@@ -33,7 +33,17 @@ def evaluate(model, postprocessors, data_loader, base_ds, device, output_dir, ar
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
-        outputs = model(samples.tensors)
+        with torch.cuda.amp.autocast():
+            outputs = model(samples.tensors)
+        
+        # Convert outputs back to float32 for stable post-processing and metrics evaluation
+        outputs.logits = outputs.logits.float()
+        outputs.pred_boxes = outputs.pred_boxes.float()
+        if hasattr(outputs, 'obj') and outputs.obj is not None:
+            outputs.obj = outputs.obj.float()
+        if hasattr(outputs, 'att_logits') and outputs.att_logits is not None:
+            outputs.att_logits = outputs.att_logits.float()
+
         orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)
         results = postprocessors(outputs, orig_target_sizes)
 
