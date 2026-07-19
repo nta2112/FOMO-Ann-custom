@@ -24,6 +24,12 @@ def main(args):
     print(f"Annotation directory: {args.ann_dir}")
     print(f"Output root: {args.output_root}")
 
+    # Validate input paths
+    if not os.path.exists(args.image_dir):
+        raise FileNotFoundError(f"Image directory not found: {args.image_dir}")
+    if not os.path.exists(args.ann_dir):
+        raise FileNotFoundError(f"Annotation directory not found: {args.ann_dir}")
+
     # 1. Create directories
     img_dest_dir = os.path.join(args.output_root, 'JPEGImages', 'IP102')
     ann_dest_dir = os.path.join(args.output_root, 'Annotations', 'IP102')
@@ -41,6 +47,9 @@ def main(args):
             if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                 # Store the direct path. Filenames are unique in IP102.
                 image_path_map[file] = os.path.join(root, file)
+
+    if len(image_path_map) == 0:
+        raise ValueError(f"No images (.jpg, .jpeg, .png) found in image_dir: {args.image_dir}")
 
     print(f"Found {len(image_path_map)} source images in total.")
 
