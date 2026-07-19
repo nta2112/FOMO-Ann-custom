@@ -10,9 +10,9 @@ from collections import defaultdict
 
 def get_args_parser():
     parser = argparse.ArgumentParser('IP102 Dataset Setup', add_help=False)
-    parser.add_argument('--image_dir', default='/kaggle/input/datasets/rtlmhjbn/ip02-dataset/classification', type=str,
+    parser.add_argument('--image_dir', default='/kaggle/input/datasets/nta212/ip102-for-object-detection/VOC2007/JPEGImages', type=str,
                         help='Path to the Kaggle image directory')
-    parser.add_argument('--ann_dir', default='/kaggle/input/datasets/eljazouly/ip102-coco-annotations/coco_annotations', type=str,
+    parser.add_argument('--ann_dir', default='/kaggle/input/datasets/nta212/ip102-for-object-detection', type=str,
                         help='Path to the Kaggle COCO annotations directory')
     parser.add_argument('--output_root', default='./data/OWOD', type=str,
                         help='Path to destination data folder (under data/OWOD)')
@@ -69,14 +69,14 @@ def main(args):
     sorted_classes = sorted(list(all_categories))
     num_classes = len(sorted_classes)
     print(f"Total categories identified: {num_classes}")
-    assert num_classes == 102, f"Expected 102 categories, found {num_classes} instead."
+    assert num_classes == 25, f"Expected 25 categories, found {num_classes} instead."
 
     # 4. Generate OWOD task split files
-    # Task 1: 27 classes, Tasks 2-4: 25 classes each
-    t1_classes = sorted_classes[:27]
-    t2_classes = sorted_classes[27:52]
-    t3_classes = sorted_classes[52:77]
-    t4_classes = sorted_classes[77:102]
+    # Task 1: 7 classes, Tasks 2-4: 6 classes each
+    t1_classes = sorted_classes[:7]
+    t2_classes = sorted_classes[7:13]
+    t3_classes = sorted_classes[13:19]
+    t4_classes = sorted_classes[19:25]
 
     # Helper function to write class lists
     def write_class_list(filename, classes):

@@ -141,10 +141,10 @@ def parse_and_display_results(args):
 def main(args):
     # Tasks specs: (Task Index, Prev Cls, Cur Cls)
     tasks = [
-        (1, 0, 27),
-        (2, 27, 25),
-        (3, 52, 25),
-        (4, 77, 25)
+        (1, 0, 7),
+        (2, 7, 6),
+        (3, 13, 6),
+        (4, 19, 6)
     ]
     
     for task_idx, prev_cls, curr_cls in tasks:
