@@ -10,7 +10,7 @@ from collections import defaultdict
 
 def get_args_parser():
     parser = argparse.ArgumentParser('IP102 Dataset Setup', add_help=False)
-    parser.add_argument('--image_dir', default='/kaggle/input/datasets/nta212/ip102-for-object-detection/VOC2007/JPEGImages', type=str,
+    parser.add_argument('--image_dir', default='/kaggle/input/datasets/nta212/ip102-for-object-detection/VOC2007/VOC2007/JPEGImages', type=str,
                         help='Path to the Kaggle image directory')
     parser.add_argument('--ann_dir', default='/kaggle/input/datasets/nta212/ip102-for-object-detection', type=str,
                         help='Path to the Kaggle COCO annotations directory')
